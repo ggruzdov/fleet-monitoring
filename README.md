@@ -50,18 +50,18 @@ There are four directories:
 
 ### Installation
 
-1. **Build the Project**
+1. **Build the project**
 ```bash
 ./build.sh
 ```
 
-2. **Start the Application**
+2. **Start the application**
 ```bash
 docker compose up -d
 ```
-**NOTE:** in the root compose.yml there are 4 feeders, each of them emulates 100 vehicles, each vehicle generates 4 metrics, 
-so the initial setup produces ~800 messages per second. I tested locally 1000 vehicles per feeder which give us ~8k msg/sec 
-and there was not throttling or message drops. You can play around by changing environment variables.
+**NOTE:** in the root _compose.yml_ there are 4 feeders, each of them emulates 100 vehicles, each vehicle generates 4 metrics, 
+so the initial setup produces ~800 messages per second. I tested locally(Intel i7-1165G7) 1000 vehicles per feeder 
+which give us ~8k msg/sec and there was not throttling or message drops. You can play around by changing environment variables. 
 However, be causes as **feeding is very CPU-consuming and there is no validation of input parameters**, so don't go crazy with it 
 on your local machine. Some tip: the more vehicles you set the bigger batch size should be in _processor_(see its variables).
 

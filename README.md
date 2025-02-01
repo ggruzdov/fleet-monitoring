@@ -1,5 +1,5 @@
 # Problem
-Throughout my career I worked on a project where we were collecting sensors telemetry to monitor customers fleet 
+Once I worked on a project where we were collecting sensors telemetry to monitor customers fleet 
 and built dashboards on that data. Our solution worked but there was a big room to make it better. 
 So, I decided to make my own _modern_ solution. Here is a brief overview of the challenges:
 - What protocol we should use to handle the telemetry?

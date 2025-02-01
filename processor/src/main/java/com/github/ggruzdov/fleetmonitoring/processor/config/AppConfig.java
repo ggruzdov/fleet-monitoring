@@ -1,18 +1,19 @@
 package com.github.ggruzdov.fleetmonitoring.processor.config;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.eclipse.paho.mqttv5.client.MqttConnectionOptions;
+import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.integration.channel.DirectChannel;
-import org.springframework.integration.mqtt.inbound.Mqttv5PahoMessageDrivenChannelAdapter;
+import org.springframework.integration.mqtt.core.DefaultMqttPahoClientFactory;
+import org.springframework.integration.mqtt.core.MqttPahoClientFactory;
+import org.springframework.integration.mqtt.inbound.MqttPahoMessageDrivenChannelAdapter;
+import org.springframework.integration.mqtt.support.DefaultPahoMessageConverter;
 import org.springframework.messaging.MessageChannel;
-import java.nio.charset.StandardCharsets;
+
 import java.time.Duration;
 
-@Slf4j
 @Configuration
 @RequiredArgsConstructor
 @EnableConfigurationProperties(MqttProperties.class)
@@ -21,18 +22,25 @@ public class AppConfig {
     private final MqttProperties properties;
 
     @Bean
-    public MqttConnectionOptions mqttConnectionOptions() {
-        var options = new MqttConnectionOptions();
-        options.setCleanStart(false); // make the connection durable to survive restarts
-        options.setSessionExpiryInterval(properties.sessionExpiryInterval());
+    public MqttConnectOptions mqttConnectOptions() {
+        MqttConnectOptions options = new MqttConnectOptions();
+        options.setCleanSession(false); // make the connection durable to survive restarts
         options.setConnectionTimeout(5);
         options.setKeepAliveInterval(60);
         options.setAutomaticReconnect(true);
         options.setUserName(properties.username());
-        options.setPassword(properties.password().getBytes(StandardCharsets.UTF_8));
+        options.setPassword(properties.password().toCharArray());
         options.setServerURIs(properties.brokerUrls().toArray(String[]::new));
         options.setMaxReconnectDelay((int) Duration.ofSeconds(30).toMillis());
+        options.setMaxInflight(properties.maxInflight());
         return options;
+    }
+
+    @Bean
+    public MqttPahoClientFactory mqttClientFactory() {
+        DefaultMqttPahoClientFactory factory = new DefaultMqttPahoClientFactory();
+        factory.setConnectionOptions(mqttConnectOptions());
+        return factory;
     }
 
     @Bean
@@ -41,10 +49,14 @@ public class AppConfig {
     }
 
     @Bean
-    public Mqttv5PahoMessageDrivenChannelAdapter inbound() {
-        var sharedTopic = String.format("$share/%s/%s", properties.groupId(), properties.topic());
-        var adapter = new Mqttv5PahoMessageDrivenChannelAdapter(mqttConnectionOptions(), properties.clientId(), sharedTopic);
+    public MqttPahoMessageDrivenChannelAdapter inbound() {
+        var adapter = new MqttPahoMessageDrivenChannelAdapter(
+            properties.clientId(),
+            mqttClientFactory(),
+            properties.topic()
+        );
         adapter.setCompletionTimeout(properties.completionTimeout().toMillis());
+        adapter.setConverter(new DefaultPahoMessageConverter());
         adapter.setQos(properties.qos());
         adapter.setOutputChannel(mqttInboundChannel());
         return adapter;

@@ -63,28 +63,13 @@ services:
       haproxy:
         condition: service_started
 
-  processor1:
+  processor:
     image: ggruzdov/fleet-monitoring-processor:1.0
-    container_name: processor1
+    container_name: processor
     environment:
       - 'POSTGRES_HOST=metrics-db'
       - 'HAPROXY_HOST=haproxy'
       - 'BATCH_SIZE=1000'
-      - 'MQTT_CLIENT_ID=metrics-processor1'
-    networks:
-      - fleet-mon
-    depends_on:
-      haproxy:
-        condition: service_started
-
-  processor2:
-    image: ggruzdov/fleet-monitoring-processor:1.0
-    container_name: processor2
-    environment:
-      - 'POSTGRES_HOST=metrics-db'
-      - 'HAPROXY_HOST=haproxy'
-      - 'BATCH_SIZE=1000'
-      - 'MQTT_CLIENT_ID=metrics-processor2'
     networks:
       - fleet-mon
     depends_on:
@@ -101,5 +86,5 @@ services:
     networks:
       - fleet-mon
     depends_on:
-      processor1:
+      processor:
         condition: service_started

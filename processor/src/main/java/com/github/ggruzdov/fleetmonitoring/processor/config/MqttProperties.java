@@ -12,9 +12,8 @@ public record MqttProperties(
     String password,
     List<String> brokerUrls,
     String topic,
-    String groupId,
     Integer qos,
     Duration completionTimeout,
-    Long sessionExpiryInterval
+    Integer maxInflight
 ) {
 }

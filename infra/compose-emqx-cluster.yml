@@ -18,10 +18,6 @@ services:
       # https://docs.emqx.com/en/emqx/latest/access-control/authn/user_management.html#importing-users
       - EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE=/opt/emqx/users.csv
       - EMQX_AUTHENTICATION__1__BOOTSTRAP_TYPE=hash
-      # There is a bug in org.eclipse.paho.mqttv5 library which leads to 'short' overflow,
-      # so we can't use 65535 value as the official EMQX documentation says.
-      - EMQX_MQTT__MAX_INFLIGHT=32767
-      - EMQX_MQTT__MAX_MQUEUE_LEN=10000
 #    ports:
 #      - "1883:1883"   # MQTT default port
 #      - "18083:18083" # Dashboard port
@@ -56,8 +52,6 @@ services:
       - EMQX_AUTHENTICATION__1__USER_ID_TYPE=username
       - EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE=/opt/emqx/users.csv
       - EMQX_AUTHENTICATION__1__BOOTSTRAP_TYPE=hash
-      - EMQX_MQTT__MAX_INFLIGHT=32767
-      - EMQX_MQTT__MAX_MQUEUE_LEN=10000
 #    ports:
 #      - "1884:1883"
     volumes:

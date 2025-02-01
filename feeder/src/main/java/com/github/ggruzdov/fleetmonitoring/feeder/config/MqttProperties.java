@@ -14,6 +14,6 @@ public record MqttProperties(
     String topic,
     Integer qos,
     Duration completionTimeout,
-    Long sessionExpiryInterval
+    Integer maxInflight
 ) {
 }

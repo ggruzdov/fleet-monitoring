@@ -20,7 +20,7 @@ public class MetricHandler {
     @ServiceActivator(inputChannel = "mqttInboundChannel")
     public void handleMessage(Message<?> message) {
         try {
-            String payload = new String((byte[]) message.getPayload());
+            String payload = message.getPayload().toString();
             log.debug("Received message {}", payload);
             var metric = objectMapper.readValue(payload, Metric.class);
             metricService.queueMetric(metric);

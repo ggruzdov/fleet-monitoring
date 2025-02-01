@@ -20,13 +20,12 @@ mqtt:
   client-id: metrics-processor
   username: processor
   password: procpwd
-  group-id: metrics-processor
   topic: metrics
   broker-urls:
     - tcp://${HAPROXY_HOST:localhost}:1883
   qos: 1
   completion-timeout: 5s
-  session-expiry-interval: 3600
+  max-inflight: 32767
 
 batch:
   size: 100

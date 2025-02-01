@@ -16,4 +16,4 @@ mqtt:
     - tcp://${HAPROXY_HOST:localhost}:1883
   qos: 1
   completion-timeout: 5s
-  session-expiry-interval: 3600
+  max-inflight: 32767

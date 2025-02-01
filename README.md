@@ -21,7 +21,7 @@ So, I decided to make my own _modern_ solution. Here is a brief overview of the 
 - Docker and Docker Compose
 
 ## Architecture
-[](architecture.png)
+![](architecture.png)
 - Each vehicle(like a truck) has a few sensors: speed, fuel, mileage, temperature and one hub. 
 The sensors are connected to the hub via bluetooth or wire. Note, I am not an embedded developer, 
 that is only my current vision of the concept how the _truck part_ can be implemented.
@@ -31,8 +31,8 @@ In the demo we use user/password authentication.
 - The telemetry stream is handled by Telemetry Processor. It basically just stores data into a database by batches.
 - TimescaleDB handles the heavy-write load and stores data into _hypertable_ and applies compression. 
 TimescaleDB is an extension for Postgres. You can find relevant information via links to the official documentation in 
-Flyway migration [script]().
-- The last part of the demo is API service for querying examples. Note, there is no dashboard UI, see _Usage Examples_ below.
+Flyway migration [script](https://github.com/ggruzdov/fleet-monitoring/blob/main/processor/src/main/resources/db/migration/V1.0__init.sql).
+- The last part of the demo is API service for querying examples. Note, there is no dashboard UI, see [Usage Examples](#usage-examples).
 
 ## Repository overview
 There are four directories:

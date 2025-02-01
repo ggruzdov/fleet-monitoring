@@ -1,0 +1,24 @@
+# NOTE: this file is just a note to quickly use mosquitto-client manually.
+
+# Publish a message
+mosquitto_pub -h node1.emqx.local -p 1883 \
+              -u feeder -P feedpwd \
+              -t "metrics" \
+              -m "Hello EMQX Cluster!"
+
+# Subscribe
+mosquitto_sub -h node1.emqx.local -p 1883 \
+              -u processor -P procpwd \
+              -t "metrics" \
+              -q 1
+
+# Compose client
+service:
+  mqtt-client:
+    image: eclipse-mosquitto:2.0.20
+    container_name: mqtt-client
+    networks:
+      - emqx-net
+    command: sh -c "apk add --no-cache mosquitto-clients && tail -f /dev/null"
+    stdin_open: true
+    tty: true

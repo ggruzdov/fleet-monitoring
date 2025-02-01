@@ -1,0 +1,12 @@
+services:
+  timescaledb:
+    container_name: metrics-db
+    image: timescale/timescaledb:2.18.0-pg17
+    environment:
+      - 'POSTGRES_DB=metrics'
+      - 'POSTGRES_USER=user'
+      - 'POSTGRES_PASSWORD=password'
+    ports:
+      - '5432:5432'
+    networks:
+      - fleet-mon

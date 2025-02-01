@@ -1,0 +1,3 @@
+include:
+  - compose-emqx-cluster.yml
+  - compose-timescaledb.yml

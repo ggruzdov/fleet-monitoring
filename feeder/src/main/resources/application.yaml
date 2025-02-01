@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: feeder
+
+generator:
+  interval: 3000
+  vehicles: 1
+  offset: 0
+
+mqtt:
+  client-id: metrics-feeder
+  username: feeder
+  password: feedpwd
+  topic: metrics
+  broker-urls:
+    - tcp://${HAPROXY_HOST:localhost}:1883
+  qos: 1
+  completion-timeout: 5s
+  session-expiry-interval: 3600

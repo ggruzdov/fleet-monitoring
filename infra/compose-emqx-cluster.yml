@@ -1,0 +1,94 @@
+services:
+  emqx1:
+    image: emqx:5.8.4
+    container_name: emqx1
+    environment:
+#      - EMQX_HOST=node1.emqx.local
+      - EMQX_NODE__NAME=emqx@node1.emqx.local
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      - EMQX_CLUSTER__STATIC__SEEDS=[emqx@node1.emqx.local,emqx@node2.emqx.local]
+      - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=public
+      - EMQX_AUTHENTICATION__1__MECHANISM=password_based
+      - EMQX_AUTHENTICATION__1__BACKEND=built_in_database
+      - EMQX_AUTHENTICATION__1__PASSWORD_HASH_ALGORITHM__NAME=sha256
+      - EMQX_AUTHENTICATION__1__PASSWORD_HASH_ALGORITHM__SALT_POSITION=suffix
+      - EMQX_AUTHENTICATION__1__USER_ID_TYPE=username
+      # https://github.com/emqx/emqx/pull/13336
+      # https://docs.emqx.com/en/emqx/latest/access-control/authn/user_management.html#importing-users
+      - EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE=/opt/emqx/users.csv
+      - EMQX_AUTHENTICATION__1__BOOTSTRAP_TYPE=hash
+      # There is a bug in org.eclipse.paho.mqttv5 library which leads to 'short' overflow,
+      # so we can't use 65535 value as the official EMQX documentation says.
+      - EMQX_MQTT__MAX_INFLIGHT=32767
+      - EMQX_MQTT__MAX_MQUEUE_LEN=10000
+#    ports:
+#      - "1883:1883"   # MQTT default port
+#      - "18083:18083" # Dashboard port
+#      - "8083:8083"   # WebSocket port
+#      - "8084:8084"   # Secure WebSocket port
+#      - "8081:8081"   # Management API port
+    volumes:
+      - ./users.csv:/opt/emqx/users.csv
+    healthcheck:
+      test: [ "CMD", "/opt/emqx/bin/emqx_ctl", "status" ]
+      interval: 5s
+      timeout: 25s
+      retries: 5
+    networks:
+      fleet-mon:
+        aliases:
+          - node1.emqx.local
+
+  emqx2:
+    image: emqx:5.8.4
+    container_name: emqx2
+    environment:
+      - EMQX_NODE__NAME=emqx@node2.emqx.local
+      - EMQX_CLUSTER__DISCOVERY_STRATEGY=static
+      - EMQX_CLUSTER__STATIC__SEEDS=[emqx@node1.emqx.local,emqx@node2.emqx.local]
+      - EMQX_DASHBOARD__DEFAULT_USERNAME=admin
+      - EMQX_DASHBOARD__DEFAULT_PASSWORD=public
+      - EMQX_AUTHENTICATION__1__MECHANISM=password_based
+      - EMQX_AUTHENTICATION__1__BACKEND=built_in_database
+      - EMQX_AUTHENTICATION__1__PASSWORD_HASH_ALGORITHM__NAME=sha256
+      - EMQX_AUTHENTICATION__1__PASSWORD_HASH_ALGORITHM__SALT_POSITION=suffix
+      - EMQX_AUTHENTICATION__1__USER_ID_TYPE=username
+      - EMQX_AUTHENTICATION__1__BOOTSTRAP_FILE=/opt/emqx/users.csv
+      - EMQX_AUTHENTICATION__1__BOOTSTRAP_TYPE=hash
+      - EMQX_MQTT__MAX_INFLIGHT=32767
+      - EMQX_MQTT__MAX_MQUEUE_LEN=10000
+#    ports:
+#      - "1884:1883"
+    volumes:
+      - ./users.csv:/opt/emqx/users.csv
+    healthcheck:
+      test: [ "CMD", "/opt/emqx/bin/emqx_ctl", "status" ]
+      interval: 5s
+      timeout: 25s
+      retries: 5
+    networks:
+      fleet-mon:
+        aliases:
+          - node2.emqx.local
+
+  haproxy:
+    image: haproxy:3.1.2
+    container_name: haproxy
+    ports:
+      - "1883:1883"   # MQTT traffic
+      - "18083:18083" # EMQX dashboard
+      - "1936:1936"   # HAProxy stats page
+    volumes:
+      - ./haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg
+    networks:
+      - fleet-mon
+    depends_on:
+      emqx1:
+        condition: service_healthy
+      emqx2:
+        condition: service_healthy
+
+networks:
+  fleet-mon:
+    driver: bridge

@@ -1,0 +1,7 @@
+spring:
+  application:
+    name: api
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/metrics
+    username: user
+    password: password

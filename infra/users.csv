@@ -1,0 +1,3 @@
+user_id,password_hash,salt,is_superuser
+processor,4df309292e2dc2ab65b70a8855041a2c95f506ee22214a7a7dbf30b85753640a,salt,false
+feeder,aebd0ed9acc506264ab21753ab598ab1b35ec34bf059392259e003e6e7cec8f9,salt,false

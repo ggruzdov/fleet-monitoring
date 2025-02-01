@@ -1,0 +1,38 @@
+spring:
+  application:
+    name: processor
+  docker:
+    compose:
+      skip:
+        in-tests: false
+      stop:
+        command: down
+      file: infra/compose-infra.yml
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:5432/metrics
+    username: user
+    password: password
+    hikari:
+      data-source-properties:
+        reWriteBatchedInserts: true # Postgres will rewrite regular insert statements into multi-value ones for batched inserts.
+
+mqtt:
+  client-id: metrics-processor
+  username: processor
+  password: procpwd
+  group-id: metrics-processor
+  topic: metrics
+  broker-urls:
+    - tcp://${HAPROXY_HOST:localhost}:1883
+  qos: 1
+  completion-timeout: 5s
+  session-expiry-interval: 3600
+
+batch:
+  size: 100
+  flush-interval-ms: 5000
+
+logging:
+  level:
+    org.springframework.jdbc.core.JdbcTemplate: DEBUG
+    com.github.ggruzdov.fleetmonitoring.processor.handler.MetricHandler: DEBUG

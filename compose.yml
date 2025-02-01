@@ -1,0 +1,105 @@
+include:
+  - infra/compose-infra.yml
+
+services:
+  feeder1:
+    image: ggruzdov/fleet-monitoring-feeder:1.0
+    container_name: feeder1
+    environment:
+      - 'POSTGRES_HOST=metrics-db'
+      - 'HAPROXY_HOST=haproxy'
+      - 'GENERATOR_INTERVAL=1700'
+      - 'GENERATOR_VEHICLES=100'
+      - 'GENERATOR_OFFSET=0'
+      - 'MQTT_CLIENT_ID=metrics-feeder1'
+    networks:
+      - fleet-mon
+    depends_on:
+      haproxy:
+        condition: service_started
+  feeder2:
+    image: ggruzdov/fleet-monitoring-feeder:1.0
+    container_name: feeder2
+    environment:
+      - 'POSTGRES_HOST=metrics-db'
+      - 'HAPROXY_HOST=haproxy'
+      - 'GENERATOR_INTERVAL=2250'
+      - 'GENERATOR_VEHICLES=200'
+      - 'GENERATOR_OFFSET=100'
+      - 'MQTT_CLIENT_ID=metrics-feeder2'
+    networks:
+      - fleet-mon
+    depends_on:
+      haproxy:
+        condition: service_started
+  feeder3:
+    image: ggruzdov/fleet-monitoring-feeder:1.0
+    container_name: feeder3
+    environment:
+      - 'POSTGRES_HOST=metrics-db'
+      - 'HAPROXY_HOST=haproxy'
+      - 'GENERATOR_INTERVAL=2620'
+      - 'GENERATOR_VEHICLES=300'
+      - 'GENERATOR_OFFSET=200'
+      - 'MQTT_CLIENT_ID=metrics-feeder3'
+    networks:
+      - fleet-mon
+    depends_on:
+      haproxy:
+        condition: service_started
+  feeder4:
+    image: ggruzdov/fleet-monitoring-feeder:1.0
+    container_name: feeder4
+    environment:
+      - 'POSTGRES_HOST=metrics-db'
+      - 'HAPROXY_HOST=haproxy'
+      - 'GENERATOR_INTERVAL=2975'
+      - 'GENERATOR_VEHICLES=400'
+      - 'GENERATOR_OFFSET=300'
+      - 'MQTT_CLIENT_ID=metrics-feeder4'
+    networks:
+      - fleet-mon
+    depends_on:
+      haproxy:
+        condition: service_started
+
+  processor1:
+    image: ggruzdov/fleet-monitoring-processor:1.0
+    container_name: processor1
+    environment:
+      - 'POSTGRES_HOST=metrics-db'
+      - 'HAPROXY_HOST=haproxy'
+      - 'BATCH_SIZE=1000'
+      - 'MQTT_CLIENT_ID=metrics-processor1'
+    networks:
+      - fleet-mon
+    depends_on:
+      haproxy:
+        condition: service_started
+
+  processor2:
+    image: ggruzdov/fleet-monitoring-processor:1.0
+    container_name: processor2
+    environment:
+      - 'POSTGRES_HOST=metrics-db'
+      - 'HAPROXY_HOST=haproxy'
+      - 'BATCH_SIZE=1000'
+      - 'MQTT_CLIENT_ID=metrics-processor2'
+    networks:
+      - fleet-mon
+    depends_on:
+      haproxy:
+        condition: service_started
+
+  api:
+    image: ggruzdov/fleet-monitoring-api:1.0
+    container_name: api
+    environment:
+      - 'POSTGRES_HOST=metrics-db'
+    ports:
+      - '8080:8080'
+    networks:
+      - fleet-mon
+    depends_on:
+      processor1:
+        condition: service_started
